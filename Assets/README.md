@@ -4,7 +4,7 @@
 
 ## Summary
 
-- License Settings and Builder and Activate for Unity develop product.
+- License Settings and Builder and Activate for develop Unity product.
 
 ## Ability
 
