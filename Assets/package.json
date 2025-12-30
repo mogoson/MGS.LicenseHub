@@ -4,6 +4,9 @@
     "displayName": "License Hub",
     "description": "License Settings and Builder and Activate for develop Unity product.",
     "unity": "2021.3",
+    "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.2.1"
+    },
     "keywords": [
         "license",
         "settings",

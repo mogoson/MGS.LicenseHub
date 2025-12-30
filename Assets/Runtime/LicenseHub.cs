@@ -292,6 +292,11 @@ namespace MGS.License
             var timestamp = ToTimestampText(DateTime.UtcNow, key);
             PlayerPrefs.SetString(KEY_LICENSE_TIMESTAMP, timestamp);
         }
+
+        internal static void ClearTimestamp()
+        {
+            PlayerPrefs.DeleteKey(KEY_LICENSE_TIMESTAMP);
+        }
         #endregion
 
         #region Json

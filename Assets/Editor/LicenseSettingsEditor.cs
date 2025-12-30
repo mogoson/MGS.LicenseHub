@@ -67,7 +67,7 @@ namespace MGS.License.Editors
         #endregion
 
         #region
-        const string LICENSE_SETTINGS_PATH = "Assets/Editor/LicenseSettings.asset";
+        const string LICENSE_SETTINGS_PATH = "Assets/LicenseSettings/Editor/LicenseSettings.asset";
 
         internal static LicenseSettings LoadLicenseSettings()
         {
@@ -79,8 +79,8 @@ namespace MGS.License.Editors
             var settings = LoadLicenseSettings();
             if (settings == null)
             {
-                var editorDir = $"{Application.dataPath}/Editor";
-                RequireDirectory(editorDir);
+                var path = $"{Application.dataPath}/../{LICENSE_SETTINGS_PATH}";
+                RequireDirectory(path);
 
                 settings = CreateInstance<LicenseSettings>();
                 AssetDatabase.CreateAsset(settings, LICENSE_SETTINGS_PATH);
@@ -101,7 +101,7 @@ namespace MGS.License.Editors
         #endregion
 
         #region
-        const string PRODUCT_SETTINGS_PATH = "Assets/Resources/ProductSettings.asset";
+        const string PRODUCT_SETTINGS_PATH = "Assets/LicenseSettings/Resources/ProductSettings.asset";
 
         ProductSettings LoadProductSettings()
         {
@@ -113,8 +113,8 @@ namespace MGS.License.Editors
             var settings = LoadProductSettings();
             if (settings == null)
             {
-                var resourcesDir = $"{Application.dataPath}/Resources";
-                RequireDirectory(resourcesDir);
+                var path = $"{Application.dataPath}/../{PRODUCT_SETTINGS_PATH}";
+                RequireDirectory(path);
 
                 settings = CreateInstance<ProductSettings>();
                 AssetDatabase.CreateAsset(settings, PRODUCT_SETTINGS_PATH);
@@ -126,6 +126,11 @@ namespace MGS.License.Editors
         void ApplyProductSettings()
         {
             var settings = RequireProductSettings();
+            if (settings.licenseKey != privateKey)
+            {
+                LicenseHub.ClearTimestamp();
+            }
+
             settings.licenseKey = privateKey;
             settings.supportedLicenseVersion = version;
             settings.timestamp = DateTime.UtcNow.ToBinary();
@@ -176,8 +181,9 @@ namespace MGS.License.Editors
             return true;
         }
 
-        void RequireDirectory(string dir)
+        void RequireDirectory(string path)
         {
+            var dir = Path.GetDirectoryName(path);
             if (!Directory.Exists(dir))
             {
                 Directory.CreateDirectory(dir);
