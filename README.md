@@ -21,11 +21,11 @@
   ```
 ## Usage
 
-- Unity menu "Toos/License/Settings" to open LicenseSettingsEditor to set license parameters.
-- Unity menu "Toos/License/Builder" to open LicenseBuilderEditor to build license.
+- Unity menu "Toos/License/Settings" to set license parameters.
+- Unity menu "Toos/License/Builder" to build license.
 - Unity menu "Toos/License/Clear" to clear activate information.
 - Import the UI sample, add the LicenseUI prefab to your launch scene Canvas.
-- Run your project, input license(build by LicenseBuilderEditor) to activate.
+- Run your project, input license to activate.
 
 ## Samples
 
