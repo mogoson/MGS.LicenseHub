@@ -79,9 +79,7 @@ namespace MGS.License.Editors
             var settings = LoadLicenseSettings();
             if (settings == null)
             {
-                var path = $"{Application.dataPath}/../{LICENSE_SETTINGS_PATH}";
-                RequireDirectory(path);
-
+                RequireDirectory(LICENSE_SETTINGS_PATH);
                 settings = CreateInstance<LicenseSettings>();
                 AssetDatabase.CreateAsset(settings, LICENSE_SETTINGS_PATH);
                 Debug.Log($"LicenseSettingsEditor create LicenseSettings at {LICENSE_SETTINGS_PATH}");
@@ -113,9 +111,7 @@ namespace MGS.License.Editors
             var settings = LoadProductSettings();
             if (settings == null)
             {
-                var path = $"{Application.dataPath}/../{PRODUCT_SETTINGS_PATH}";
-                RequireDirectory(path);
-
+                RequireDirectory(PRODUCT_SETTINGS_PATH);
                 settings = CreateInstance<ProductSettings>();
                 AssetDatabase.CreateAsset(settings, PRODUCT_SETTINGS_PATH);
                 Debug.Log($"LicenseSettingsEditor create ProductSettings at {PRODUCT_SETTINGS_PATH}");
