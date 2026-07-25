@@ -1,8 +1,8 @@
 {
     "name": "MGS.License.UI",
-    "rootNamespace": "",
+    "rootNamespace": "MGS.License.UI",
     "references": [
-        "MGS.License.Hub"
+        "GUID:66c4208f2982bc74d836b58b997ecd97"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

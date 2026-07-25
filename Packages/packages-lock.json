@@ -1,11 +1,11 @@
 {
   "dependencies": {
-    "com.mgs.scriptdiemaker": {
-      "version": "https://github.com/mogoson/MGS.ScriptDiemaker.git?path=/Assets",
+    "com.mgs.assistant": {
+      "version": "https://github.com/mogoson/MGS.Assistant.git?path=/Assets",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "fe04ddf251dfb155ba57b1a8ce4d2b841c4bec7a"
+      "hash": "01629ee9f68cb9e4f736be3f8ff8333e4b9592d3"
     },
     "com.unity.collab-proxy": {
       "version": "2.3.1",

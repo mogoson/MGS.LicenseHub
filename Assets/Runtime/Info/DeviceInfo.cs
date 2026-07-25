@@ -17,8 +17,9 @@ namespace MGS.License
     [Serializable]
     struct DeviceInfo
     {
-        public string operatingSystem;
-        public string processorType;
+        public string deviceUniqueIdentifier;
         public string deviceModel;
+        public string processorType;
+        public string operatingSystem;
     }
 }

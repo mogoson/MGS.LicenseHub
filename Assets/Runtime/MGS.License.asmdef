@@ -1,6 +1,6 @@
 {
-    "name": "MGS.License.Hub",
-    "rootNamespace": "",
+    "name": "MGS.License",
+    "rootNamespace": "MGS.License",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

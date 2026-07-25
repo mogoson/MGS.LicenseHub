@@ -12,18 +12,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace MGS.License.Editors
+namespace MGS.License.Editor
 {
     sealed class LicenseBuilderEditor : EditorWindow
     {
         #region
         [MenuItem("Tools/License/Builder", priority = 1)]
-        static void ShowEditor()
+        static void Open()
         {
             GetWindow<LicenseBuilderEditor>("License Builder").Show();
         }
@@ -168,9 +169,15 @@ namespace MGS.License.Editors
 
         bool CheckRequestValid(RequestInfo info, LicenseSettings settings)
         {
-            if (string.IsNullOrEmpty(info.deviceInfo.operatingSystem))
+            if (string.IsNullOrEmpty(info.deviceInfo.deviceUniqueIdentifier))
             {
-                Debug.LogError("The operatingSystem of request is null.");
+                Debug.LogError("The deviceUniqueIdentifier of request is null.");
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(info.deviceInfo.deviceModel))
+            {
+                Debug.LogError("The deviceModel of request is null.");
                 return false;
             }
 
@@ -180,9 +187,9 @@ namespace MGS.License.Editors
                 return false;
             }
 
-            if (string.IsNullOrEmpty(info.deviceInfo.deviceModel))
+            if (string.IsNullOrEmpty(info.deviceInfo.operatingSystem))
             {
-                Debug.LogError("The deviceModel of request is null.");
+                Debug.LogError("The operatingSystem of request is null.");
                 return false;
             }
 
@@ -245,6 +252,31 @@ namespace MGS.License.Editors
 
             return Convert.ToBase64String(signature);
         }
+
+        string ReadAllText(string path)
+        {
+            try
+            {
+                return File.ReadAllText(path);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+                return null;
+            }
+        }
+
+        void WriteAllText(string path, string contents)
+        {
+            try
+            {
+                File.WriteAllText(path, contents);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
+        }
         #endregion
 
         #region
@@ -265,6 +297,14 @@ namespace MGS.License.Editors
             if (GUILayout.Button("Paste"))
             {
                 OnRequestEdit(GUIUtility.systemCopyBuffer);
+            }
+            if (GUILayout.Button("Browse"))
+            {
+                var path = EditorUtility.OpenFilePanel("Open License Request", Application.dataPath, "lre");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    OnRequestEdit(ReadAllText(path));
+                }
             }
             GUILayout.EndHorizontal();
 
@@ -301,6 +341,14 @@ namespace MGS.License.Editors
             if (GUILayout.Button("Copy"))
             {
                 GUIUtility.systemCopyBuffer = license;
+            }
+            if (GUILayout.Button("Save"))
+            {
+                var path = EditorUtility.SaveFilePanel("Save License", Application.dataPath, Application.productName, "lic");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    WriteAllText(path, license);
+                }
             }
             GUILayout.EndHorizontal();
 

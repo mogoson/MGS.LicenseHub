@@ -13,7 +13,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace MGS.License.Editors
+namespace MGS.License.Editor
 {
     class LicenseActivateEditor
     {

@@ -19,13 +19,13 @@ using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
-namespace MGS.License.Editors
+namespace MGS.License.Editor
 {
     sealed class LicenseSettingsEditor : EditorWindow, IPreprocessBuildWithReport
     {
         #region
         [MenuItem("Tools/License/Settings", priority = 0)]
-        static void ShowEditor()
+        static void Open()
         {
             GetWindow<LicenseSettingsEditor>("License Settings").Show();
         }

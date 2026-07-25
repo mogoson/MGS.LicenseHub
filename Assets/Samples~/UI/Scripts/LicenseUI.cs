@@ -23,13 +23,6 @@ namespace MGS.License.UI
 
         protected virtual void Awake()
         {
-            //Do not verify license during trial.
-            var trialExpiry = new DateTime(2025, 12, 27);
-            if (DateTime.UtcNow <= trialExpiry)
-            {
-                Close();
-                return;
-            }
             var result = LicenseHub.VerifyLicense();
             OnVerifyResult(result);
         }
@@ -250,7 +243,11 @@ namespace MGS.License.UI
 
         protected void Quit()
         {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
             Application.Quit();
+#endif
         }
         #endregion
     }

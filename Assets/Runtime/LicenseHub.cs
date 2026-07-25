@@ -30,17 +30,17 @@ namespace MGS.License
 
         internal static string ComputeDeviceID(DeviceInfo info)
         {
-            var infoTex = $"{info.operatingSystem}{info.processorType}{info.deviceModel}";
-            return ComputeHash(infoTex);
+            return info.deviceUniqueIdentifier;
         }
 
         static DeviceInfo GetDeviceInfo()
         {
             return new DeviceInfo
             {
-                operatingSystem = SystemInfo.operatingSystem,
+                deviceUniqueIdentifier = SystemInfo.deviceUniqueIdentifier,
                 processorType = SystemInfo.processorType,
-                deviceModel = SystemInfo.deviceModel
+                deviceModel = SystemInfo.deviceModel,
+                operatingSystem = SystemInfo.operatingSystem
             };
         }
         #endregion

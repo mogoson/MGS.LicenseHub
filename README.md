@@ -1,6 +1,6 @@
 [TOC]
 
-# MGS.LicenseHub
+# MGS.License
 
 ## Summary
 
@@ -17,7 +17,7 @@
 - Unity --> Window --> Package Manager --> "+" --> Add package from git URL...
 
   ```text
-  https://github.com/mogoson/MGS.LicenseHub.git?path=/Assets
+  https://github.com/mogoson/MGS.License.git?path=/Assets
   ```
 ## Usage
 
@@ -29,8 +29,8 @@
 
 ## Samples
 
-- Unity --> Window --> Package Manager --> Packages-Mogoson --> UI --> Samples.
+- Unity --> Window --> Package Manager --> Packages-Mogoson --> License --> Samples.
 
 ------
 
-Copyright © 2025 Mogoson.	mogoson@outlook.com
+Copyright © 2026 Mogoson.	mogoson@outlook.com

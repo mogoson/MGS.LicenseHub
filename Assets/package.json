@@ -1,7 +1,7 @@
 {
-    "name": "com.mgs.licensehub",
+    "name": "com.mgs.license",
     "version": "1.0.0",
-    "displayName": "License Hub",
+    "displayName": "License",
     "description": "License Settings and Builder and Activate for develop Unity product.",
     "unity": "2021.3",
     "dependencies": {
@@ -21,7 +21,7 @@
     "samples": [
         {
             "displayName": "UI",
-            "description": "UI for license hub to activate product.",
+            "description": "UI for license to activate product.",
             "path": "Samples~/UI"
         }
     ]

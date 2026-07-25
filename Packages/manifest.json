@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.mgs.scriptdiemaker": "https://github.com/mogoson/MGS.ScriptDiemaker.git?path=/Assets",
+    "com.mgs.assistant": "https://github.com/mogoson/MGS.Assistant.git?path=/Assets",
     "com.unity.collab-proxy": "2.3.1",
     "com.unity.feature.development": "1.0.1",
     "com.unity.ide.rider": "3.0.28",
