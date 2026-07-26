@@ -11,7 +11,10 @@
  *************************************************************************/
 
 using System;
+using System.Collections;
+using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace MGS.License.UI
 {
@@ -20,25 +23,75 @@ namespace MGS.License.UI
         #region
         public ActivatePanel activatePanel;
         public MessagePanel messagePanel;
+        public event Action OnCloseEvent;
 
-        protected virtual void Awake()
+        protected virtual IEnumerator Start()
+        {
+            yield return VerifyLicense(OnVerifyResult);
+        }
+        #endregion
+
+        #region VerifyLicense
+        protected IEnumerator VerifyLicense(Action<LicenseResult> finished)
         {
             var result = LicenseHub.VerifyLicense();
-            OnVerifyResult(result);
+            if (result.code != ResultCode.Valid)
+            {
+                var license = string.Empty;
+                yield return ReadLicense(tex => license = tex);
+                result = LicenseHub.ActivateLicense(license);
+            }
+            finished?.Invoke(result);
         }
 
-        void OnVerifyResult(LicenseResult result)
+        protected IEnumerator ReadLicense(Action<string> finished)
+        {
+            var fileName = $"{Application.productName}.lic";
+            var filePath = $"{Application.persistentDataPath}/{fileName}";
+            if (!File.Exists(filePath))
+            {
+                filePath = $"{Application.streamingAssetsPath}/{fileName}";
+            }
+            var request = UnityWebRequest.Get(filePath);
+            yield return request.SendWebRequest();
+            if (!string.IsNullOrEmpty(request.error))
+            {
+                Debug.LogError(request.error);
+            }
+            finished?.Invoke(request.downloadHandler.text);
+        }
+        #endregion
+
+        #region OnVerifyResult
+        protected void OnVerifyResult(LicenseResult result)
         {
             if (result.code == ResultCode.Valid)
             {
                 OnVerifyValid(result);
                 return;
             }
+            CreateRequest();
             OnVerifyInvalid(result.code);
         }
-        #endregion
 
-        #region
+        protected void CreateRequest()
+        {
+            var filePath = $"{Application.persistentDataPath}/{Application.productName}.lre";
+            if (!File.Exists(filePath))
+            {
+                try
+                {
+                    var requestTex = LicenseHub.GetRequestText();
+                    File.WriteAllText(filePath, requestTex);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
+            }
+        }
+
+        #region OnVerifyValid
         protected virtual void OnVerifyValid(LicenseResult result)
         {
             CheckEntitlements(result);
@@ -133,7 +186,7 @@ namespace MGS.License.UI
         }
         #endregion
 
-        #region
+        #region OnVerifyInvalid
         protected virtual void OnVerifyInvalid(ResultCode code)
         {
             var message = ResolveMessage(code);
@@ -183,7 +236,7 @@ namespace MGS.License.UI
                     ShowQuiteOrActivatePanel();
                     return;
                 }
-                Quit();
+                QuitApp();
             });
         }
 
@@ -201,12 +254,13 @@ namespace MGS.License.UI
                 OnActivateResult(result);
                 return;
             }
-            Quit();
+            QuitApp();
         }
         #endregion
+        #endregion
 
-        #region
-        void OnActivateResult(LicenseResult result)
+        #region OnActivateResult
+        protected void OnActivateResult(LicenseResult result)
         {
             if (result.code == ResultCode.Valid)
             {
@@ -235,13 +289,14 @@ namespace MGS.License.UI
         }
         #endregion
 
-        #region
-        protected void Close()
+        #region Close
+        protected virtual void Close()
         {
             Destroy(gameObject);
+            OnCloseEvent?.Invoke();
         }
 
-        protected void Quit()
+        protected virtual void QuitApp()
         {
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
