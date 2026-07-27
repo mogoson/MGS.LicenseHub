@@ -22,12 +22,15 @@
 ## Usage
 
 - Unity menu "Toos/License/Settings" to set license parameters.
-
+  - Should not change (Re Generate) the keys after project published.
 - Unity menu "Toos/License/Builder" to build license.
-- Unity menu "Toos/License/Clear" to clear activate information.
+  - Trial button to get a license request text for trial.
+  - The license build from trial request without bind device.
+- Unity menu "Toos/License/Clear" to clear activate information from current device.
 - Import the UI sample, add the LicenseUI prefab to your start scene Canvas.
-  - Auto verify license when start scene run.
-  - Auto activate license from file named {productName}.lic at path persistentDataPath or streamingAssetsPath.
+  - Verify license when start scene run.
+  - Activate license from file named {productName}.lic at path persistentDataPath or streamingAssetsPath.
+  - Create license request file named {productName}.lre at path persistentDataPath if verify failed.
 
 ## Samples
 
