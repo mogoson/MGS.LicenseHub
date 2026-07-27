@@ -12,9 +12,7 @@
 
 using System;
 using System.Collections;
-using System.IO;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace MGS.License.UI
 {
@@ -27,41 +25,7 @@ namespace MGS.License.UI
 
         protected virtual IEnumerator Start()
         {
-            yield return VerifyLicense(OnVerifyResult);
-        }
-        #endregion
-
-        #region VerifyLicense
-        protected IEnumerator VerifyLicense(Action<LicenseResult> finished)
-        {
-            var result = LicenseHub.VerifyLicense();
-            if (result.code != ResultCode.Valid)
-            {
-                var license = string.Empty;
-                yield return ReadLicense(tex => license = tex);
-                if (!string.IsNullOrEmpty(license))
-                {
-                    result = LicenseHub.ActivateLicense(license);
-                }
-            }
-            finished?.Invoke(result);
-        }
-
-        protected IEnumerator ReadLicense(Action<string> finished)
-        {
-            var fileName = $"{Application.productName}.lic";
-            var filePath = $"{Application.persistentDataPath}/{fileName}";
-            if (!File.Exists(filePath))
-            {
-                filePath = $"{Application.streamingAssetsPath}/{fileName}";
-            }
-            var request = UnityWebRequest.Get(filePath);
-            yield return request.SendWebRequest();
-            if (!string.IsNullOrEmpty(request.error))
-            {
-                Debug.LogError(request.error);
-            }
-            finished?.Invoke(request.downloadHandler.text);
+            yield return LicenseAgent.VerifyLicense(OnVerifyResult);
         }
         #endregion
 
@@ -73,25 +37,7 @@ namespace MGS.License.UI
                 OnVerifyValid(result);
                 return;
             }
-            CreateRequest();
             OnVerifyInvalid(result.code);
-        }
-
-        protected void CreateRequest()
-        {
-            var filePath = $"{Application.persistentDataPath}/{Application.productName}.lre";
-            if (!File.Exists(filePath))
-            {
-                try
-                {
-                    var requestTex = LicenseHub.GetRequestText();
-                    File.WriteAllText(filePath, requestTex);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
         }
 
         #region OnVerifyValid
@@ -173,7 +119,7 @@ namespace MGS.License.UI
 
         protected void ShowCancelOrActivatePanel()
         {
-            var requestText = LicenseHub.GetRequestText();
+            var requestText = LicenseAgent.GetRequestText();
             activatePanel.Show(requestText, "Cancel", "Activate", OnCancelOrActivate);
         }
 
@@ -181,7 +127,7 @@ namespace MGS.License.UI
         {
             if (activate)
             {
-                var result = LicenseHub.ActivateLicense(licenseText);
+                var result = LicenseAgent.ActivateLicense(licenseText);
                 OnActivateResult(result);
                 return;
             }
@@ -245,7 +191,7 @@ namespace MGS.License.UI
 
         protected void ShowQuiteOrActivatePanel()
         {
-            var requestText = LicenseHub.GetRequestText();
+            var requestText = LicenseAgent.GetRequestText();
             activatePanel.Show(requestText, "Quite", "Activate", OnQuiteOrActivate);
         }
 
@@ -253,7 +199,7 @@ namespace MGS.License.UI
         {
             if (activate)
             {
-                var result = LicenseHub.ActivateLicense(licenseText);
+                var result = LicenseAgent.ActivateLicense(licenseText);
                 OnActivateResult(result);
                 return;
             }
