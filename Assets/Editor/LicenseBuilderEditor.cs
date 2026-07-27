@@ -31,13 +31,6 @@ namespace MGS.License.Editor
         #endregion
 
         #region
-        void OnGUI()
-        {
-            DrawEditor();
-        }
-        #endregion
-
-        #region
         string request;
         bool permanent;
         int days = 30;
@@ -53,6 +46,162 @@ namespace MGS.License.Editor
         #endregion
 
         #region
+        void OnGUI()
+        {
+            DrawEditor();
+        }
+
+        void DrawEditor()
+        {
+            DrawRequestArea();
+            DrawBuildArea();
+            DrawLicenseArea();
+        }
+        #endregion
+
+        #region
+        Vector2 requestPos;
+        Vector2 licensePos;
+
+        void DrawRequestArea()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Request");
+            if (GUILayout.Button("Trial"))
+            {
+                OnRequestEdit(GetTrialRequest());
+            }
+            if (GUILayout.Button("Paste"))
+            {
+                OnRequestEdit(GUIUtility.systemCopyBuffer);
+            }
+            if (GUILayout.Button("Browse"))
+            {
+                var path = EditorUtility.OpenFilePanel("Open License Request", Application.dataPath, "lre");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    OnRequestEdit(ReadAllText(path));
+                }
+            }
+            GUILayout.EndHorizontal();
+
+            requestPos = GUILayout.BeginScrollView(requestPos, GUILayout.Height(120));
+            OnRequestEdit(GUILayout.TextArea(request, GUILayout.ExpandHeight(true)));
+            GUILayout.EndScrollView();
+        }
+
+        void DrawBuildArea()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Valid");
+            GUILayout.FlexibleSpace();
+            if (!permanent)
+            {
+                days = EditorGUILayout.IntField(days);
+                GUILayout.Label("Days");
+            }
+            permanent = GUILayout.Toggle(permanent, "Permanent");
+            GUILayout.EndHorizontal();
+
+            DrawEntitlements();
+
+            if (GUILayout.Button("Build"))
+            {
+                license = BuildLicense();
+            }
+        }
+
+        void DrawLicenseArea()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("License");
+            if (GUILayout.Button("Copy"))
+            {
+                GUIUtility.systemCopyBuffer = license;
+            }
+            if (GUILayout.Button("Save"))
+            {
+                var path = EditorUtility.SaveFilePanel("Save License", Application.dataPath, Application.productName, "lic");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    WriteAllText(path, license);
+                }
+            }
+            GUILayout.EndHorizontal();
+
+            licensePos = GUILayout.BeginScrollView(licensePos);
+            license = GUILayout.TextArea(license, GUILayout.ExpandHeight(true));
+            GUILayout.EndScrollView();
+        }
+
+        void DrawEntitlements()
+        {
+            if (entitlements.Count == 0)
+            {
+                return;
+            }
+
+            GUILayout.Label("Entitlements");
+            foreach (var entitlement in entitlements)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Box(entitlement.Key);
+                GUILayout.FlexibleSpace();
+                if (!entitlement.Value.permanent)
+                {
+                    entitlement.Value.days = EditorGUILayout.IntField(entitlement.Value.days);
+                    GUILayout.Label("Days");
+                }
+                entitlement.Value.permanent = GUILayout.Toggle(entitlement.Value.permanent, "Permanent");
+                GUILayout.EndHorizontal();
+            }
+        }
+        #endregion
+
+        #region
+        string GetTrialRequest()
+        {
+            var info = new RequestInfo
+            {
+                deviceInfo = new DeviceInfo(),
+                productInfo = LicenseHub.GetProductInfo()
+            };
+            var json = LicenseHub.ToJson(info);
+            return LicenseHub.ToBase64String(json);
+        }
+
+        void OnRequestEdit(string request)
+        {
+            if (request == this.request)
+            {
+                return;
+            }
+            this.request = request;
+            var info = LicenseHub.FromRequestText(request);
+            SetEntitlements(info.productInfo.entitlements);
+        }
+
+        void SetEntitlements(IEnumerable<string> items)
+        {
+            entitlements.Clear();
+            if (items == null)
+            {
+                return;
+            }
+            foreach (var item in items)
+            {
+                if (string.IsNullOrEmpty(item))
+                {
+                    continue;
+                }
+                if (entitlements.ContainsKey(item))
+                {
+                    continue;
+                }
+                entitlements.Add(item, new Entitlement());
+            }
+        }
+
         string BuildLicense()
         {
             if (!CheckInputValid())
@@ -169,30 +318,6 @@ namespace MGS.License.Editor
 
         bool CheckRequestValid(RequestInfo info, LicenseSettings settings)
         {
-            if (string.IsNullOrEmpty(info.deviceInfo.deviceUniqueIdentifier))
-            {
-                Debug.LogError("The deviceUniqueIdentifier of request is null.");
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(info.deviceInfo.deviceModel))
-            {
-                Debug.LogError("The deviceModel of request is null.");
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(info.deviceInfo.processorType))
-            {
-                Debug.LogError("The processorType of request is null.");
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(info.deviceInfo.operatingSystem))
-            {
-                Debug.LogError("The operatingSystem of request is null.");
-                return false;
-            }
-
             if (info.productInfo.productName != Application.productName)
             {
                 Debug.LogError($"The productName {info.productInfo.productName} of request miss match current product {Application.productName}");
@@ -206,38 +331,6 @@ namespace MGS.License.Editor
             }
 
             return true;
-        }
-
-        void OnRequestEdit(string request)
-        {
-            if (request == this.request)
-            {
-                return;
-            }
-            this.request = request;
-            var info = LicenseHub.FromRequestText(request);
-            SetEntitlements(info.productInfo.entitlements);
-        }
-
-        void SetEntitlements(IEnumerable<string> items)
-        {
-            entitlements.Clear();
-            if (items == null)
-            {
-                return;
-            }
-            foreach (var item in items)
-            {
-                if (string.IsNullOrEmpty(item))
-                {
-                    continue;
-                }
-                if (entitlements.ContainsKey(item))
-                {
-                    continue;
-                }
-                entitlements.Add(item, new Entitlement());
-            }
         }
         #endregion
 
@@ -275,108 +368,6 @@ namespace MGS.License.Editor
             catch (Exception ex)
             {
                 Debug.LogException(ex);
-            }
-        }
-        #endregion
-
-        #region
-        Vector2 requestPos;
-        Vector2 licensePos;
-
-        void DrawEditor()
-        {
-            DrawRequestArea();
-            DrawBuildArea();
-            DrawLicenseArea();
-        }
-
-        void DrawRequestArea()
-        {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Request");
-            if (GUILayout.Button("Paste"))
-            {
-                OnRequestEdit(GUIUtility.systemCopyBuffer);
-            }
-            if (GUILayout.Button("Browse"))
-            {
-                var path = EditorUtility.OpenFilePanel("Open License Request", Application.dataPath, "lre");
-                if (!string.IsNullOrEmpty(path))
-                {
-                    OnRequestEdit(ReadAllText(path));
-                }
-            }
-            GUILayout.EndHorizontal();
-
-            requestPos = GUILayout.BeginScrollView(requestPos, GUILayout.Height(120));
-            OnRequestEdit(GUILayout.TextArea(request, GUILayout.ExpandHeight(true)));
-            GUILayout.EndScrollView();
-        }
-
-        void DrawBuildArea()
-        {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Valid");
-            GUILayout.FlexibleSpace();
-            if (!permanent)
-            {
-                days = EditorGUILayout.IntField(days);
-                GUILayout.Label("Days");
-            }
-            permanent = GUILayout.Toggle(permanent, "Permanent");
-            GUILayout.EndHorizontal();
-
-            DrawEntitlements();
-
-            if (GUILayout.Button("Build"))
-            {
-                license = BuildLicense();
-            }
-        }
-
-        void DrawLicenseArea()
-        {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("License");
-            if (GUILayout.Button("Copy"))
-            {
-                GUIUtility.systemCopyBuffer = license;
-            }
-            if (GUILayout.Button("Save"))
-            {
-                var path = EditorUtility.SaveFilePanel("Save License", Application.dataPath, Application.productName, "lic");
-                if (!string.IsNullOrEmpty(path))
-                {
-                    WriteAllText(path, license);
-                }
-            }
-            GUILayout.EndHorizontal();
-
-            licensePos = GUILayout.BeginScrollView(licensePos);
-            license = GUILayout.TextArea(license, GUILayout.ExpandHeight(true));
-            GUILayout.EndScrollView();
-        }
-
-        void DrawEntitlements()
-        {
-            if (entitlements.Count == 0)
-            {
-                return;
-            }
-
-            GUILayout.Label("Entitlements");
-            foreach (var entitlement in entitlements)
-            {
-                GUILayout.BeginHorizontal();
-                GUILayout.Box(entitlement.Key);
-                GUILayout.FlexibleSpace();
-                if (!entitlement.Value.permanent)
-                {
-                    entitlement.Value.days = EditorGUILayout.IntField(entitlement.Value.days);
-                    GUILayout.Label("Days");
-                }
-                entitlement.Value.permanent = GUILayout.Toggle(entitlement.Value.permanent, "Permanent");
-                GUILayout.EndHorizontal();
             }
         }
         #endregion

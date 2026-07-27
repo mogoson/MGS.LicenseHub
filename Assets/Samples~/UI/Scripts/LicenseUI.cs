@@ -39,7 +39,10 @@ namespace MGS.License.UI
             {
                 var license = string.Empty;
                 yield return ReadLicense(tex => license = tex);
-                result = LicenseHub.ActivateLicense(license);
+                if (!string.IsNullOrEmpty(license))
+                {
+                    result = LicenseHub.ActivateLicense(license);
+                }
             }
             finished?.Invoke(result);
         }

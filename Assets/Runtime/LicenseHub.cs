@@ -51,7 +51,7 @@ namespace MGS.License
             return Resources.Load<ProductSettings>(nameof(ProductSettings));
         }
 
-        static ProductInfo GetProductInfo()
+        internal static ProductInfo GetProductInfo()
         {
             var settings = LoadProductSettings();
             return new ProductInfo
@@ -133,11 +133,14 @@ namespace MGS.License
                 return result;
             }
 
-            var device = ComputeDeviceID();
-            if (license.device != device)
+            if (!string.IsNullOrEmpty(license.device))
             {
-                result.code = ResultCode.DeviceNotMatch;
-                return result;
+                var device = ComputeDeviceID();
+                if (license.device != device)
+                {
+                    result.code = ResultCode.DeviceNotMatch;
+                    return result;
+                }
             }
 
             if (license.expiry < DateTime.MaxValue)
@@ -172,13 +175,14 @@ namespace MGS.License
                 return null;
             }
 
+            var isTimestampValid = VerifyTimestamp(settings);
             var entResults = new List<EntitlementResult>();
             foreach (var entitlement in entitlements)
             {
                 var entCode = ResultCode.Valid;
                 if (entitlement.expiry < DateTime.MaxValue)
                 {
-                    if (!VerifyTimestamp(settings))
+                    if (!isTimestampValid)
                     {
                         entCode = ResultCode.TimestampInvalid;
                     }
@@ -340,12 +344,6 @@ namespace MGS.License
         #endregion
 
         #region Hash
-        static string ComputeHash(string data)
-        {
-            var hash128 = Hash128.Compute(data);
-            return hash128.ToString();
-        }
-
         static string ComputeHash(string data, string key)
         {
             var keyBytes = Encoding.UTF8.GetBytes(key);
