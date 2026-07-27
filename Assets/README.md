@@ -22,10 +22,12 @@
 ## Usage
 
 - Unity menu "Toos/License/Settings" to set license parameters.
+
 - Unity menu "Toos/License/Builder" to build license.
 - Unity menu "Toos/License/Clear" to clear activate information.
-- Import the UI sample, add the LicenseUI prefab to your launch scene Canvas.
-- Run your project, input license to activate.
+- Import the UI sample, add the LicenseUI prefab to your start scene Canvas.
+  - Auto verify license when start scene run.
+  - Auto activate license from file named {productName}.lic at path persistentDataPath or streamingAssetsPath.
 
 ## Samples
 
